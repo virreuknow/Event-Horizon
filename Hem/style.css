@@ -82,6 +82,10 @@ body {
     font-size: 1.2rem;
     color: #ffcc00;
   }
+  .news-card:hover h3 {
+    text-decoration-color: #ffcc00;
+    text-decoration-line: underline;
+  }
   .news-card-content p {
     flex-grow: 1;
     font-size: 0.9rem;

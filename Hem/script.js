@@ -46,6 +46,7 @@ async function fetchArticles() {
     data.results.forEach(artikel => {
         const div = document.createElement('div')
         div.className = 'news-card'
+        div.onclick = function () {window.open(artikel.url, '_blank')}
         div.innerHTML = `
         <img src="${artikel.image_url}">
         <div class="news-card-content">
