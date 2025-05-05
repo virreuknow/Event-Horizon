@@ -34,6 +34,7 @@ body {
   }
   .news-grid {
     display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1rem;
     margin-top: 1rem;
   }
@@ -52,13 +53,36 @@ body {
   .news-card img {
     width: 100%;
     height: 180px;
-    /*object-fit: ska skriva något här sen, måste bara se hur det ser ut då jag fixat med fetch artiklarna*/
-  
+    object-fit: cover;
+  }
+  .news-card-content {
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .news-card-content h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #ffcc00;
+  }
+  .news-card-content p {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: #ccc;
+    margin: 0.5rem 0;
+  }
+  .news-card-content a {
+    color: #00adef;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 0.5rem;
+    align-self: flex-start;
   }
   footer {
     text-align: center;
     padding: 1rem;
-    background: #1a1a1a;/*Längst ner på hemsidan*/
+    background: #1a1a1a;
     color: #555;
     margin-top: 3rem;
   }
