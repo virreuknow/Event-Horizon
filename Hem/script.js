@@ -17,5 +17,26 @@ async function fetchLatestNews() {
     `;
 }
 
+async function fetchArticles() {
+    const res = await fetch('https://api.spaceflightnewsapi.net/v4/articles/?limit=5&offset=0')
+    const data = await res.json()
+    const container = document.getElementById('article-container')
+
+    data.results.forEach(artikel => {
+        const div = document.createElement('div')
+        div.className = 'news-card'
+        div.innerHTML = `
+        <img src="${artikel.image_url}">
+        <div class="news-card-content">
+            <h3>${artikel.title}</h3>
+            <p>${artikel.summary.substring(0, 100)}...</p>
+            <a href="${artikel.url}" target="_blank">Läs mer</a>
+        </div>
+        `;
+        container.appendChild(div);
+    })
+}
+
 
 fetchLatestNews();
+fetchArticles();
