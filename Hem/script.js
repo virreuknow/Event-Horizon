@@ -8,13 +8,13 @@ let input = document.getElementById('input')
 let articleContent = 0
 
 function moreFunc(btn) {
-    limitThing = (oddOrEven % 2 === 0) ? 4 : (2*limitThing);
-    limitthing = (oddoreven % 2 === 0) ? 4 : (2*limitthing);
     if (btn === 'article') {
+        limitThing = (oddOrEven % 2 === 0) ? 4 : (2*limitThing);
         buttonArc.innerHTML = (oddOrEven % 2 === 0) ? "Visa mer" : "Visa mindre";
         oddOrEven += 1;
         fetchArticles();
     } else if (btn === 'blog') {
+        limitthing = (oddoreven % 2 === 0) ? 4 : (2*limitthing);
         buttonBlog.innerHTML = (oddoreven % 2 === 0) ? "Visa mer" : "Visa mindre";
         oddoreven += 1;
         fetchBlogs();
