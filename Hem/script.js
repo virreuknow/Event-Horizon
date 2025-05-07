@@ -7,6 +7,8 @@ let articleContent = 0
 function moreFunc() {
     limitThing = (oddOrEven%2 == 0) ? 4 : 8;
     fetchArticles();
+    fetchBlogs();
+    fetchReports();
     (button.style.transform) = (oddOrEven%2 == 0) ? ("scale(2) rotate(0deg)") : ("scale(2) rotate(-90deg)")
     oddOrEven += 1;
 }
@@ -14,6 +16,8 @@ function moreFunc() {
 function searchNews() {
     articleContent = `title_contains=${input.value}`
     fetchArticles()
+    fetchBlogs()
+    fetchReports();
 }
 
 async function fetchLatestNews() {
@@ -24,7 +28,6 @@ async function fetchLatestNews() {
 
     const articleData = await articlesRes.json();
     const blogData = await blogsRes.json();
-    console.log(articleData.results[0].published_at)
 
     const latest = ((articleData.results[0].published_at) > (blogData.results[0].published_at)) ? (articleData.results[0]) : (blogData.results[0])
 
@@ -62,15 +65,18 @@ async function fetchArticles() {
 
 async function fetchBlogs() {
     fetch('https://api.spaceflightnewsapi.net/v4/blogs/?limit=8&offset=0') //så att den laddats redan innan man tryckt på pilen
-    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/?limit=${limitThing}&offset=0`)
+    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/?${articleContent}&limit=${limitThing}&offset=0`)
     const data = await res.json()
     const container = document.getElementById('blogs-container')
+    container.innerHTML = ''
 
+    if(data.results.length != 0) {
     data.results.forEach(blog => {
         const div = document.createElement('div')
         div.className = 'news-card'
+        div.onclick = function () {window.open(blog.url, '_blank')}
         div.innerHTML = `
-        <img src="${blog.image_url}">
+        <img alt="Laddar..." src="${blog.image_url}">
         <div class="news-card-content">
             <h3>${blog.title}</h3>
             <p>${blog.summary.substring(0, 100)}...</p>
@@ -79,8 +85,34 @@ async function fetchBlogs() {
         `;
         container.appendChild(div);
     })
+} else container.innerHTML = "Hittar inget..."
+}
+
+async function fetchReports() {
+    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/reports/?${articleContent}&limit=${limitThing}&offset=0`)
+    const data = await res.json()
+    const container = document.getElementById('reports-container')
+    container.innerHTML = ''
+
+    if(data.results.length != 0) {
+    data.results.forEach(report => {
+        const div = document.createElement('div')
+        div.className = 'news-card'
+        div.onclick = function () {window.open(report.url, '_blank')}
+        div.innerHTML = `
+        <img alt="Laddar..." src="${report.image_url}">
+        <div class="news-card-content">
+            <h3>${report.title}</h3>
+            <p>${report.summary.substring(0, 100)}...</p>
+            <a href="${report.url}" target="_blank">Läs mer</a>
+        </div>
+        `;
+        container.appendChild(div);
+    })
+} else container.innerHTML = "Hittar inget..."
 }
 
 fetchLatestNews();
 fetchArticles();
 fetchBlogs();
+fetchReports();
