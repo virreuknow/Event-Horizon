@@ -34,12 +34,12 @@ body {
   .container {
     padding: 1rem;
   }
-  .buttonArticle {
-    background: none;
+  .button {
     border: none;
-    margin: 1vw;
-   transform: scale(2) rotate(0deg);
-   transition: 75ms;
+    background: none;
+    margin: 0;
+    margin-left: 15px;
+    padding: 0;
   }
   h2 {
     background: #333;
@@ -93,7 +93,7 @@ body {
     color: #ccc;
     margin: 0.5rem 0;
   }
-  .news-card-content a {
+  .news-card-content a, .button {
     color: #00adef;
     text-decoration: none;
     font-weight: bold;

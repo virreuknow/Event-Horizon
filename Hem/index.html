@@ -22,17 +22,20 @@
 </div>
 
 <div class="container">
-  <h2>Senaste Artiklar</h2>
+  <h2>Artiklar</h2>
   <div class="news-grid" id="article-container"></div>
-  <form onclick="moreFunc(); event.preventDefault()">
-    <button class="buttonArticle" id="buttonArticle">🔻</button>
+  <form onclick="moreFunc('article', event); event.preventDefault()">
+    <button class="button" id="buttonArticle">Visa mer</button>
   </form>
 
-  <h2>Senaste Bloggar</h2>
-  <div class="news-grid" id="blogs-container"></div>
-
-  <h2>Senaste Rapporterna</h2>
+  <h2>Rapporter</h2>
   <div class="news-grid" id="reports-container"></div>
+
+  <h2>Bloggar</h2>
+  <div class="news-grid" id="blogs-container"></div>
+  <form onclick="moreFunc('blog', event); event.preventDefault()">
+    <button class="button" id="buttonBlog">Visa mer</button>
+  </form>
 </div>
 
 <footer>

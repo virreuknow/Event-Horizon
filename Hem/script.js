@@ -1,17 +1,26 @@
 let limitThing = 4;
+let limitthing = 4
 let oddOrEven = 1
-let button = document.getElementById('buttonArticle');
+let oddoreven = 1
+let buttonArc = document.getElementById('buttonArticle');
+let buttonBlog = document.getElementById('buttonBlog');
 let input = document.getElementById('input')
 let articleContent = 0
 
-function moreFunc() {
-    limitThing = (oddOrEven%2 == 0) ? 4 : 8;
-    fetchArticles();
-    fetchBlogs();
-    fetchReports();
-    (button.style.transform) = (oddOrEven%2 == 0) ? ("scale(2) rotate(0deg)") : ("scale(2) rotate(-90deg)")
-    oddOrEven += 1;
+function moreFunc(btn) {
+    limitThing = (oddOrEven % 2 === 0) ? 4 : (2*limitThing);
+    limitthing = (oddoreven % 2 === 0) ? 4 : (2*limitthing);
+    if (btn === 'article') {
+        buttonArc.innerHTML = (oddOrEven % 2 === 0) ? "Visa mer" : "Visa mindre";
+        oddOrEven += 1;
+        fetchArticles();
+    } else if (btn === 'blog') {
+        buttonBlog.innerHTML = (oddoreven % 2 === 0) ? "Visa mer" : "Visa mindre";
+        oddoreven += 1;
+        fetchBlogs();
+    }
 }
+
 
 function searchNews() {
     articleContent = `title_contains=${input.value}`
@@ -65,7 +74,7 @@ async function fetchArticles() {
 
 async function fetchBlogs() {
     fetch('https://api.spaceflightnewsapi.net/v4/blogs/?limit=8&offset=0') //så att den laddats redan innan man tryckt på pilen
-    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/?${articleContent}&limit=${limitThing}&offset=0`)
+    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/?${articleContent}&limit=${limitthing}&offset=0`)
     const data = await res.json()
     const container = document.getElementById('blogs-container')
     container.innerHTML = ''
@@ -89,7 +98,7 @@ async function fetchBlogs() {
 }
 
 async function fetchReports() {
-    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/reports/?${articleContent}&limit=${limitThing}&offset=0`)
+    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/reports/?${articleContent}&limit=4&offset=0`)
     const data = await res.json()
     const container = document.getElementById('reports-container')
     container.innerHTML = ''
@@ -100,10 +109,9 @@ async function fetchReports() {
         div.className = 'news-card'
         div.onclick = function () {window.open(report.url, '_blank')}
         div.innerHTML = `
-        <img alt="Laddar..." src="${report.image_url}">
         <div class="news-card-content">
             <h3>${report.title}</h3>
-            <p>${report.summary.substring(0, 100)}...</p>
+            <p>${report.summary.substring(0, 200)}...</p>
             <a href="${report.url}" target="_blank">Läs mer</a>
         </div>
         `;
