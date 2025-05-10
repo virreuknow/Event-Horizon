@@ -9,29 +9,40 @@
 </head>
 <body>
 
-<header>🚀 Event Horizon</header>
+<header>
+  <div class="title">🚀 Event Horizon</div>
+  <div class="profile-icon" onclick="tglLogin()">
+    👤
+  </div>
+  <form class="login-form hidden" onsubmit="event.preventDefault(); alert('Login is not yet in function!');">
+    <input type="text" placeholder="Username">
+    <input type="password" placeholder="Password">
+    <button type="submit">Log in</button>
+    <button type="submit">Sign up</button>
+  </form>
+</header>
 
 <div class="breaking-news" id="breaking-news">
-  Laddar senaste nytt...
+  Loading breaking news...
 </div>
 <div class="search-news">
     <form onsubmit="searchNews(); event.preventDefault()">
-        <input placeholder="Sök..." id="input" style="font-family: 'Courier New', Courier, monospace;">
-        <button type="submit" style="background-color: white; border: none;font-family: 'Courier New', Courier, monospace;">Skicka</button>
+        <input placeholder="Search..." id="input" style="font-family: 'Courier New', Courier, monospace;">
+        <button type="submit" style="background-color: white; border: none;font-family: 'Courier New', Courier, monospace;">Submit</button>
     </form>
 </div>
 
 <div class="container">
-  <h2>Artiklar</h2>
+  <h2>Articles</h2>
   <div class="news-grid" id="article-container"></div>
   <form onclick="moreFunc('article', event); event.preventDefault()">
-    <button class="button" id="buttonArticle">Visa mer</button>
+    <button class="button" id="buttonArticle">Show more</button>
   </form>
 
-  <h2>Rapporter</h2>
+  <h2>Reports</h2>
   <div class="news-grid" id="reports-container"></div>
 
-  <h2>Bloggar</h2>
+  <h2>Blogs</h2>
   <div class="news-grid" id="blogs-container"></div>
   <form onclick="moreFunc('blog', event); event.preventDefault()">
     <button class="button" id="buttonBlog">Visa mer</button>
@@ -39,7 +50,7 @@
 </div>
 
 <footer>
-  2025 Event Horizon | Byggd med SpaceFlight News API 🚀
+  2025 Event Horizon | Created with SpaceFlight News API 🚀
 </footer>
 
 <script src="script.js"></script>

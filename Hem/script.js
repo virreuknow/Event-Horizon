@@ -6,6 +6,7 @@ let buttonArc = document.getElementById('buttonArticle');
 let buttonBlog = document.getElementById('buttonBlog');
 let input = document.getElementById('input')
 let articleContent = 0
+let articleContent2 = 0
 
 function moreFunc(btn) {
     if (btn === 'article') {
@@ -24,6 +25,7 @@ function moreFunc(btn) {
 
 function searchNews() {
     articleContent = `title_contains=${input.value}`
+    articleContent2 = `summary_contains=${input.value}`
     fetchArticles()
     fetchBlogs()
     fetchReports();
@@ -48,7 +50,7 @@ async function fetchLatestNews() {
 }
 
 async function fetchArticles() {
-    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/articles/?${articleContent}&limit=${limitThing}&offset=0`)
+    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/articles/?${articleContent}&${articleContent2}&limit=${limitThing}&offset=0`)
     const data = await res.json()
     const container = document.getElementById('article-container')
     container.innerHTML = ''
@@ -74,7 +76,7 @@ async function fetchArticles() {
 
 async function fetchBlogs() {
     fetch('https://api.spaceflightnewsapi.net/v4/blogs/?limit=8&offset=0') //så att den laddats redan innan man tryckt på pilen
-    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/?${articleContent}&limit=${limitthing}&offset=0`)
+    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/?${articleContent}&${articleContent2}&limit=${limitthing}&offset=0`)
     const data = await res.json()
     const container = document.getElementById('blogs-container')
     container.innerHTML = ''
@@ -98,7 +100,7 @@ async function fetchBlogs() {
 }
 
 async function fetchReports() {
-    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/reports/?${articleContent}&limit=4&offset=0`)
+    const res = await fetch(`https://api.spaceflightnewsapi.net/v4/reports/?&limit=4&offset=0`)
     const data = await res.json()
     const container = document.getElementById('reports-container')
     container.innerHTML = ''
@@ -118,6 +120,11 @@ async function fetchReports() {
         container.appendChild(div);
     })
 } else container.innerHTML = "Hittar inget..."
+}
+
+function tglLogin() {
+    const loginForm = document.querySelector('.login-form');
+    loginForm.classList.toggle('hidden');
 }
 
 fetchLatestNews();
