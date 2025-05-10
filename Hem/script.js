@@ -66,7 +66,7 @@ async function fetchArticles() {
         <div class="news-card-content">
             <h3>${artikel.title}</h3>
             <p>${artikel.summary.substring(0, 100)}...</p>
-            <a href="${artikel.url}" target="_blank">Läs mer</a>
+            <a href="${artikel.url}" target="_blank">Full article</a>
         </div>
         `;
         container.appendChild(div);
@@ -91,7 +91,7 @@ async function fetchBlogs() {
         <div class="news-card-content">
             <h3>${blog.title}</h3>
             <p>${blog.summary.substring(0, 100)}...</p>
-            <a href="${blog.url}" target="_blank">Läs mer</a>
+            <a href="${blog.url}" target="_blank">Full blog</a>
         </div>
         `;
         container.appendChild(div);
@@ -114,7 +114,7 @@ async function fetchReports() {
         <div class="news-card-content">
             <h3>${report.title}</h3>
             <p>${report.summary.substring(0, 200)}...</p>
-            <a href="${report.url}" target="_blank">Läs mer</a>
+            <a href="${report.url}" target="_blank">Full report</a>
         </div>
         `;
         container.appendChild(div);
