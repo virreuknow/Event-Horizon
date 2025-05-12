@@ -75,7 +75,6 @@ async function fetchArticles() {
 }
 
 async function fetchBlogs() {
-    fetch('https://api.spaceflightnewsapi.net/v4/blogs/?limit=8&offset=0') //så att den laddats redan innan man tryckt på pilen
     const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/?${articleContent}&${articleContent2}&limit=${limitthing}&offset=0`)
     const data = await res.json()
     const container = document.getElementById('blogs-container')
