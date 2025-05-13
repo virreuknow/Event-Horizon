@@ -29,7 +29,7 @@ app.post('/register', (req, res) => {
     const db = läsdata()
     const existingUser = db.users.find(user => user.username === username)
     if (existingUser) {
-        return res.send('User already exists')
+        return res.status(402).send('User already exists')
     }
 
     const newUser = {
@@ -47,9 +47,9 @@ app.post('/login', (req, res) => {
     const db = läsdata()
     const user = db.users.find(x => x.username === username && x.password === password)
     if (user) {
-        res.send('Login successful')
+        res.status(201).send('Login successful')
     } else {
-        res.send('Invalid username or password')
+        res.status(402).send('Invalid username or password')
     }
 })
 

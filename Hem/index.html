@@ -16,8 +16,8 @@
     <!--https://fonts.google.com/icons?selected=Material+Symbols+Outlined:account_circle:FILL@0;wght@400;GRAD@0;opsz@48&icon.query=login&icon.size=48&icon.color=black-->
   </div>
   <form class="login-form hidden" onsubmit="event.preventDefault();">
-    <input type="text" placeholder="Username" id="username">
-    <input type="password" placeholder="Password" id="password">
+    <input type="text" placeholder="Username" id="username" autocomplete="off">
+    <input type="password" placeholder="Password" id="password" autocomplete="off">
     <button id="login-button" type="submit" onclick="handleLogin(event)">Log in</button>
     <button id="signup-button" type="button" onclick="handleSignUp()">Sign up</button>
   </form>
