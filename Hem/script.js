@@ -126,6 +126,49 @@ function tglLogin() {
     loginForm.classList.toggle('hidden');
 }
 
+async function handleLogin(event) {
+    event.preventDefault(); 
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+    });
+
+    if (response.ok) {
+        alert('Login successful');
+    } else {
+        alert('Invalid username or password');
+    }
+}
+
+async function handleSignUp() {
+    // Hämta input
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Skicka POST till server.js
+    const response = await fetch('/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username, password: password }),
+    });
+
+    // Kontrollera om registreringen lyckas
+    if (response.ok) {
+        alert('Sign up successful! You can now log in.');
+    } else {
+        alert('Sign up failed. Try a different username.');
+    }
+}
+
 fetchLatestNews();
 fetchArticles();
 fetchBlogs();

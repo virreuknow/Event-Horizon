@@ -15,11 +15,11 @@
     <img src="account_circle_48dp_BLACK_FILL0_wght400_GRAD0_opsz48.svg" alt="Profile Icon"> 
     <!--https://fonts.google.com/icons?selected=Material+Symbols+Outlined:account_circle:FILL@0;wght@400;GRAD@0;opsz@48&icon.query=login&icon.size=48&icon.color=black-->
   </div>
-  <form class="login-form hidden" onsubmit="event.preventDefault(); alert('Login is not yet in function!');">
-    <input type="text" placeholder="Username">
-    <input type="password" placeholder="Password">
-    <button type="submit">Log in</button>
-    <button type="submit">Sign up</button>
+  <form class="login-form hidden" onsubmit="event.preventDefault();">
+    <input type="text" placeholder="Username" id="username">
+    <input type="password" placeholder="Password" id="password">
+    <button id="login-button" type="submit" onclick="handleLogin(event)">Log in</button>
+    <button id="signup-button" type="button" onclick="handleSignUp()">Sign up</button>
   </form>
 </header>
 
@@ -57,3 +57,8 @@
 <script src="script.js"></script>
 </body>
 </html>
+
+<!--
+https://www.geeksforgeeks.org/express-js/
+https://www.geeksforgeeks.org/node-js-fs-readfilesync-method/
+-->
