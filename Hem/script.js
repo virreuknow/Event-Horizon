@@ -206,7 +206,12 @@ function showFollowedWordsUI() {
 }
 
 function showForumButton() {
-    
+    const button = document.getElementById('forum-button');
+    if(loggedIn) {
+        button.style.display = 'block';
+    } else {
+        button.style.display = 'none';
+    }
 }
 
 // Visa/dölj sektionen vid login/logout
@@ -216,6 +221,7 @@ function updateLoginButton() {
         loginBtn.textContent = "Log out";
         loginBtn.onclick = handleLogout;
         showFollowedWordsUI();
+        showForumButton();
 
     } else {
         loginBtn.textContent = "Log in";
