@@ -48,13 +48,13 @@ function loadTopics() {
                 div.className = "topic";
                 div.innerHTML = `
                     <b>${t.username}</b>: ${t.topics}
-                    <button style="float:right" onclick="event.stopPropagation(); deleteMessage(${t.id}, true)">Ta bort</button>
+                    <button style="float:right" onclick="event.stopPropagation(); deleteMessage(${t.id}, true)">Delete</button>
                 `;
                 div.onclick = () => openTopic(t.id);
                 container.appendChild(div);
             });
         })
-        .catch(err => console.error("Fel vid hämtning:", err));
+        .catch(err => console.error("Error while fetching:", err));
 }
 
 // =====================================================
@@ -69,7 +69,7 @@ function openTopic(id) {
 
             container.innerHTML = `<h2>${topic.topics}</h2>
                 <p><b>${topic.username}</b>: ${topic.messages}</p>
-                <button onclick="deleteMessage(${topic.id}, true)">Ta bort topic</button>
+                <button onclick="deleteMessage(${topic.id}, true)">Delete topic</button>
                 <hr>`;
 
             messages.forEach(m => {
@@ -77,21 +77,21 @@ function openTopic(id) {
                 div.className = "message";
                 div.innerHTML = `
                     ${m.username}: ${m.messages}
-                    <button style="margin-left:10px" onclick="deleteMessage(${m.id}, false, ${topic.id})">Ta bort</button>
+                    <button style="margin-left:10px" onclick="deleteMessage(${m.id}, false, ${topic.id})">Delete</button>
                 `;
                 container.appendChild(div);
             });
 
             container.innerHTML += `
                 <h3>Svara</h3>
-                <input id="replyUser" placeholder="Namn">
-                <textarea id="replyMsg" placeholder="Meddelande"></textarea>
-                <button onclick="reply(${id})">Skicka</button>
+                <input id="replyUser" placeholder="Username">
+                <textarea id="replyMsg" placeholder="Message"></textarea>
+                <button onclick="reply(${id})">Publish</button>
                 <br><br>
-                <button onclick="loadTopics()">⬅ Tillbaka</button>
+                <button onclick="loadTopics()">⬅ Return</button>
             `;
         })
-        .catch(err => console.error("Kunde inte öppna topic:", err));
+        .catch(err => console.error("Couldn't open the topic:", err));
 }
 
 // =====================================================
