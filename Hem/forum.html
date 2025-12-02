@@ -2,7 +2,7 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>Åva Öppet Hus</title>
+    <title>EH-Forum</title>
     <style>
         body { font-family: Arial; padding: 20px; }
         .topic { padding: 10px; margin-bottom: 10px; border: 1px solid #aaa; border-radius: 5px; cursor: pointer; }
@@ -14,20 +14,20 @@
 <body>
 
 <h1>
-    Åva Öppet Hus
+    The Forum
     
 </h1>
 
-<h2>Skapa topic</h2>
+<h2>Create a topic</h2>
 <form id="postForm">
-    <input type="text" id="username" placeholder="Ditt namn" required>
+    <input type="text" id="username" placeholder="Username" required>
     <input type="text" id="topic" placeholder="Topic" required>
-    <textarea id="message" placeholder="Meddelande" required></textarea>
-    <button type="submit">Skapa</button>
+    <textarea id="message" placeholder="Message" required></textarea>
+    <button type="submit">Publish</button>
 </form>
 
 <hr>
-<h2>Alla topics</h2>
+<h2>All topics</h2>
 <div id="topics"></div>
 
 <script>
