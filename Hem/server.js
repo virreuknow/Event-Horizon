@@ -109,7 +109,7 @@ app.post('/api/followedWords', (req, res) => {
     }
 });
 
-
+//NYA DELAR FÖR FORUM
 
 // --------- Databas ----------
 const db = mysql.createConnection({
