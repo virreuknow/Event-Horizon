@@ -9,6 +9,12 @@
       "id": 2,
       "username": "test",
       "password": "test"
+    },
+    {
+      "id": 3,
+      "username": "hello",
+      "password": "hello",
+      "followedWords": []
     }
   ]
 }

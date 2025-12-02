@@ -9,41 +9,103 @@ const PORT = 3000;
 app.use(bodyParser.json());
 app.use(express.static(__dirname)); // Serve static files
 
-const loginPath = path.join(__dirname, 'login.json');
+const loginPath = path.join(__dirname, 'db.json');
+
+function readUserFile() {
+    if (!fs.existsSync(loginPath)) {
+        fs.writeFileSync(loginPath, JSON.stringify({ users: [] }, null, 2));
+    }
+    try {
+        const parsed = JSON.parse(fs.readFileSync(loginPath, 'utf8'));
+        parsed.users = parsed.users || parsed.login || [];
+        return parsed;
+    } catch (err) {
+        return { users: [] };
+    }
+}
+
+function writeUserFile(data) {
+    fs.writeFileSync(loginPath, JSON.stringify({ users: data.users }, null, 2));
+}
+
+function requireCredentials(req) {
+    const body = req.body || {};
+    const username = typeof body.username === 'string' ? body.username.trim() : '';
+    const password = typeof body.password === 'string' ? body.password.trim() : '';
+    return { username, password };
+}
 
 // Login endpoint
 app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-    const data = JSON.parse(fs.readFileSync(loginPath, 'utf8'));
-    const user = data.login.find(u => u.username === username && u.password === password);
-    if (user) {
-        res.json({ success: true });
-    } else {
-        res.status(401).json({ success: false, message: 'Fel användarnamn eller lösenord.' });
+    const { username, password } = requireCredentials(req);
+    if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'Input both Username and Password' });
+    }
+
+    try {
+        const data = readUserFile();
+        const user = data.users.find(u => u.username === username && u.password === password);
+
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Wrong username or password' });
+        }
+
+        res.json({ success: true, user: { username: user.username, followedWords: user.followedWords || [] } });
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ success: false, message: 'Internal server error trying to login' });
     }
 });
 
 // Register endpoint
 app.post('/api/register', (req, res) => {
-    const { username, password } = req.body;
-    let data = JSON.parse(fs.readFileSync(loginPath, 'utf8'));
-    data.login.push({ username, password, followedWords: [] });
-    fs.writeFileSync(loginPath, JSON.stringify(data, null, 2));
-    res.json({ success: true });
-    
+    const { username, password } = requireCredentials(req);
+
+    if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'Input both Usernname and Password' });
+    }
+
+    try {
+        const data = readUserFile();
+        const exists = data.users.some(u => u.username === username);
+
+        if (exists) {
+            return res.status(409).json({ success: false, message: 'Username is already in use' });
+        }
+
+        const nextId = data.users.reduce((max, u) => Math.max(max, u.id || 0), 0) + 1;
+        data.users.push({ id: nextId, username, password, followedWords: [] });
+        writeUserFile(data);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Register error:', err);
+        res.status(500).json({ success: false, message: 'Internal server error while registration' });
+    }
 });
 
 // Followed Words endpoint
 app.post('/api/followedWords', (req, res) => {
-    const { username, followedWords } = req.body;
-    let data = JSON.parse(fs.readFileSync(loginPath, 'utf8'));
-    const user = data.login.find(u => u.username === username);
-    if (user) {
-        user.followedWords = followedWords;
-        fs.writeFileSync(loginPath, JSON.stringify(data, null, 2));
-        res.json({ success: true });
-    } else {
-        res.status(404).json({ success: false, message: 'User not found.' });
+    const body = req.body || {};
+    const username = typeof body.username === 'string' ? body.username.trim() : '';
+    const followedWords = Array.isArray(body.followedWords) ? body.followedWords : [];
+
+    if (!username) {
+        return res.status(400).json({ success: false, message: 'Username is missing' });
+    }
+
+    try {
+        const data = readUserFile();
+        const user = data.users.find(u => u.username === username);
+        if (user) {
+            user.followedWords = followedWords;
+            writeUserFile(data);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: 'User not found.' });
+        }
+    } catch (err) {
+        console.error('Followed words error:', err);
+        res.status(500).json({ success: false, message: 'Internal server error while saving word' });
     }
 });
 
@@ -58,16 +120,6 @@ const db = mysql.createConnection({
     charset: "utf8mb4"
 });
 
-// --------- Filtrering ----------
-function cleanOrNull(str = "") {
-    const badWords = ["badword1", "badword2", "badword3"]; // Lägg till fler otillåtna ord här
-    const lower = str.toLowerCase();
-    for (const w of badWords) {
-        if (lower.includes(w)) return null;
-    }
-    return str.trim();
-}
-
 // --------- API ----------
 app.post("/api/create", (req, res) => {
     const { username, topic, message } = req.body;
@@ -75,10 +127,6 @@ app.post("/api/create", (req, res) => {
     const user = cleanOrNull(username);
     const top = cleanOrNull(topic);
     const msg = cleanOrNull(message);
-
-    if (!user || !top || !msg) {
-        return res.status(400).json({ error: "Ogiltigt innehåll eller otillåtet ord." });
-    }
 
     db.query(
         "INSERT INTO forum (username, topics, messages, parent_id) VALUES (?, ?, ?, 0)",
@@ -136,18 +184,14 @@ app.post("/api/reply", (req, res) => {
     const user = cleanOrNull(username);
     const msg = cleanOrNull(message);
 
-    if (!user || !msg || !topicId) {
-        return res.status(400).json({ error: "Ogiltigt innehåll eller topicId saknas." });
-    }
-
-    // Replies får bara pekar på root-topics (parent_id = 0)
+    // Replies får bara peka på root-topics
     db.query(
         "SELECT id FROM forum WHERE id = ? AND parent_id = 0",
         [topicId],
         (err, rows) => {
             if (err) return res.status(500).json({ error: err });
             if (!rows.length) {
-                return res.status(400).json({ error: "Topic finns inte eller är inte en root." });
+                return res.status(400).json({ error: "Topic doesn't exist, check internet conncection" });
             }
 
             db.query(

@@ -134,44 +134,34 @@ async function handleLogin(event) {
     event.preventDefault();
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    if (data.success) {
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || 'Login failed');
+        }
         loggedIn = true;
-        loggedInUser = username;
-        // Hämta följda ord från servern:
-        const userData = JSON.parse(await (await fetch('/login.json')).text());
-        const user = userData.login.find(u => u.username === username);
-        followedWords = user && user.followedWords ? user.followedWords : [];
+        loggedInUser = data.user.username;
+        followedWords = data.user.followedWords || [];
         updateLoginButton();
         document.querySelector('.login-form').classList.add('hidden');
-    } else {
-        alert(data.message || 'Login failed');
-    }
-}
-
-function updateLoginButton() {
-    const loginBtn = document.querySelector('.login-form button[type="submit"]');
-    if (loggedIn) {
-        loginBtn.textContent = "Log out";
-        loginBtn.onclick = handleLogout;
-        document.getElementById('followed-words-container').style.display = 'block';
-        showFollowedWordsUI();
-    } else {
-        loginBtn.textContent = "Log in";
-        loginBtn.onclick = null;
-        document.getElementById('followed-words-container').style.display = 'none';
+        fetchFollowedArticles();
+    } catch (err) {
+        alert(err.message || 'Login failed');
     }
 }
 
 function handleLogout(event) {
     event.preventDefault();
     loggedIn = false;
+    loggedInUser = null;
+    followedWords = [];
     updateLoginButton();
+    fetchFollowedArticles();
     alert('Successfully logged out');
     document.getElementById('login-username').value = '';
     document.getElementById('login-password').value = '';
@@ -180,17 +170,19 @@ function handleLogout(event) {
 async function handleRegister() {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
-    const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    console.log(data);
-    if (data.success) {
-        alert('Registrering lyckades!');
-    } else {
-        alert('Registrering misslyckades!');
+    try {
+        const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || 'Registrering misslyckades!');
+        }
+        alert('Registrering lyckades! Logga in för att fortsätta.');
+    } catch (err) {
+        alert(err.message || 'Registrering misslyckades!');
     }
 }
 
