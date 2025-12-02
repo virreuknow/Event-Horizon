@@ -8,18 +8,18 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-
 <header>
   <div class="title">🚀 Event Horizon</div>
+  <a href="forum.html" style="text-decoration: none; color: black;" >Forum</a>
   <div class="profile-icon" onclick="tglLogin()">
     <img src="account_circle_48dp_BLACK_FILL0_wght400_GRAD0_opsz48.svg" alt="Profile Icon"> 
     <!--https://fonts.google.com/icons?selected=Material+Symbols+Outlined:account_circle:FILL@0;wght@400;GRAD@0;opsz@48&icon.query=login&icon.size=48&icon.color=black-->
   </div>
-  <form class="login-form hidden" onsubmit="event.preventDefault();">
-    <input type="text" placeholder="Username" id="username" autocomplete="off">
-    <input type="password" placeholder="Password" id="password" autocomplete="off">
-    <button id="login-button" type="submit" onclick="handleLogin(event)">Log in</button>
-    <button id="signup-button" type="button" onclick="handleSignUp()">Sign up</button>
+  <form class="login-form hidden" onsubmit="handleLogin(event)">
+    <input type="text" placeholder="Username" id="login-username">
+    <input type="password" placeholder="Password" id="login-password">
+    <button type="submit">Log in</button>
+    <button type="button" onclick="handleRegister()">Sign up</button>
   </form>
 </header>
 
@@ -33,11 +33,22 @@
     </form>
 </div>
 
+
 <div class="container">
+  <div id="followed-section" style="display:none;">
+    <h2>Followed</h2>
+    <form id="followed-words-form" style="margin-bottom:1em; color: black;" onsubmit="addFollowedWord(event)">
+      <input id="follow-word-input" placeholder="Lägg till ord att följa..." autocomplete="off">
+      <button type="submit" style="background-color: white; border-radius: 5px; border: none;">Follow</button>
+    </form>
+    <div id="followed-words-list" style="margin-bottom:1em; color: black;"></div>
+    <div class="news-grid" id="followed-articles-container"></div>
+  </div>
+
   <h2>Articles</h2>
   <div class="news-grid" id="article-container"></div>
   <form onclick="moreFunc('article', event); event.preventDefault()">
-    <button class="button" id="buttonArticle">Show more</button>
+    <button class="button" id="buttonArticle">Show more...</button>
   </form>
 
   <h2>Reports</h2>
@@ -46,19 +57,14 @@
   <h2>Blogs</h2>
   <div class="news-grid" id="blogs-container"></div>
   <form onclick="moreFunc('blog', event); event.preventDefault()">
-    <button class="button" id="buttonBlog">Visa mer</button>
+    <button class="button" id="buttonBlog">Show more...</button>
   </form>
 </div>
-
 <footer>
   2025 Event Horizon | Created with SpaceFlight News API 🚀
 </footer>
 
 <script src="script.js"></script>
+
 </body>
 </html>
-
-<!--
-https://www.geeksforgeeks.org/express-js/
-https://www.geeksforgeeks.org/node-js-fs-readfilesync-method/
--->
