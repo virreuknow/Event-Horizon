@@ -74,7 +74,7 @@ async function fetchArticles() {
         `;
         container.appendChild(div);
     })
-    } else container.innerHTML = "Hittar inget..."
+    } else container.innerHTML = "No results found..."
 }
 
 async function fetchBlogs() {
@@ -99,7 +99,7 @@ async function fetchBlogs() {
         `;
         container.appendChild(div);
     })
-} else container.innerHTML = "Hittar inget..."
+} else container.innerHTML = "No results found..."
 }
 
 async function fetchReports() {
@@ -122,12 +122,25 @@ async function fetchReports() {
         `;
         container.appendChild(div);
     })
-} else container.innerHTML = "Hittar inget..."
+} else container.innerHTML = "No results found..."
 }
 
 function tglLogin() {
     const loginForm = document.querySelector('.login-form');
     loginForm.classList.toggle('hidden');
+}
+
+function showForumButton() {
+    const forumBtn = document.getElementById('forum-button');
+    if (!forumBtn) return;
+    if (loggedIn) {
+        forumBtn.classList.remove('hidden');
+        forumBtn.textContent = 'Event Horizon News Forum';
+        forumBtn.href = `forum.html?user=${encodeURIComponent(loggedInUser)}`;
+    } else {
+        forumBtn.classList.add('hidden');
+        forumBtn.href = 'forum.html';
+    }
 }
 
 async function handleLogin(event) {
@@ -148,6 +161,7 @@ async function handleLogin(event) {
         loggedInUser = data.user.username;
         followedWords = data.user.followedWords || [];
         updateLoginButton();
+        showForumButton();
         document.querySelector('.login-form').classList.add('hidden');
         fetchFollowedArticles();
     } catch (err) {
@@ -161,6 +175,7 @@ function handleLogout(event) {
     loggedInUser = null;
     followedWords = [];
     updateLoginButton();
+    showForumButton();
     fetchFollowedArticles();
     alert('Successfully logged out');
     document.getElementById('login-username').value = '';
@@ -178,19 +193,29 @@ async function handleRegister() {
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
-            throw new Error(data.message || 'Registrering misslyckades!');
+            throw new Error(data.message || 'Registration failed!');
         }
-        alert('Registrering lyckades! Logga in för att fortsätta.');
+        alert('Registration succeeded! Log in to continue.');
     } catch (err) {
-        alert(err.message || 'Registrering misslyckades!');
+        alert(err.message || 'Registration failed!');
     }
 }
 
 function showFollowedWordsUI() {
     const section = document.getElementById('followed-section');
     const wordsList = document.getElementById('followed-words-list');
+    const form = document.getElementById('followed-words-form');
+    const hint = document.getElementById('followed-hint');
+    const input = document.getElementById('follow-word-input');
+    const articles = document.getElementById('followed-articles-container');
+
+    if (!section) return;
+
     if (loggedIn) {
         section.style.display = 'block';
+        form.classList.remove('hidden');
+        input.disabled = false;
+        hint.textContent = `Logged in as ${loggedInUser}. Add keywords to follow.`;
         wordsList.innerHTML = followedWords.map((word, i) => `
             <span class="followed-word" style="display:inline-block; margin:0 8px 8px 0; padding:4px 8px; background:#eee; border-radius:16px; position:relative;">
                 ${word}
@@ -198,21 +223,24 @@ function showFollowedWordsUI() {
             </span>
         `).join('');
     } else {
-        section.style.display = 'none';
+        section.style.display = 'block';
+        form.classList.add('hidden');
+        input.disabled = true;
+        hint.textContent = 'Log in to start following keywords.';
         wordsList.innerHTML = '';
-        document.getElementById('followed-articles-container').innerHTML = '';
+        articles.innerHTML = '';
     }
     fetchFollowedArticles();
 }
 
-function showForumButton() {
-    const button = document.getElementById('forum-button');
-    if(loggedIn) {
-        button.style.display = 'block';
-    } else {
-        button.style.display = 'none';
-    }
-}
+//function showForumButton() {
+//    const button = document.getElementById('forum-button');
+//    if(loggedIn) {
+ //       button.style.display = 'block';
+//    } else {
+//        button.style.display = 'none';
+//    }
+//}
 
 // Visa/dölj sektionen vid login/logout
 function updateLoginButton() {
@@ -221,17 +249,22 @@ function updateLoginButton() {
         loginBtn.textContent = "Log out";
         loginBtn.onclick = handleLogout;
         showFollowedWordsUI();
-        showForumButton();
+        //showForumButton();
 
     } else {
         loginBtn.textContent = "Log in";
         loginBtn.onclick = null;
         showFollowedWordsUI();
     }
+    showForumButton();
 }
 
 function addFollowedWord(event) {
     event.preventDefault();
+    if (!loggedIn) {
+        alert('Log in to follow keywords.');
+        return;
+    }
     const wordInput = document.getElementById('follow-word-input');
     const word = wordInput.value.trim();
     if (word && !followedWords.includes(word)) {
@@ -295,12 +328,12 @@ async function fetchFollowedArticles() {
             container.appendChild(div);
         });
     } else {
-        container.innerHTML = "<p>Inga artiklar hittades.</p>";
+        container.innerHTML = "<p>No articles found</p>";
     }
 }
 
 fetchLatestNews();
-fetchArticles();;
+fetchArticles();
 fetchBlogs();
 fetchReports();
-fetchReports();
+showFollowedWordsUI();

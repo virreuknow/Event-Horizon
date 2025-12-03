@@ -1,157 +1,286 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EH-Forum</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Event Horizon News Forum</title>
     <style>
-        body { font-family: Arial; padding: 20px; }
-        .topic { padding: 10px; margin-bottom: 10px; border: 1px solid #aaa; border-radius: 5px; cursor: pointer; }
-        .message { margin-left: 20px; padding: 5px; border-left: 2px solid #888; }
-        input, textarea { display: block; margin-bottom: 10px; width: 300px; }
-        button { padding: 5px 12px; cursor: pointer; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            background: #0a0a0a;
+            color: #fff;
+        }
+        a { color: inherit; }
+        header {
+            background: #ffcc00;
+            color: #000;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: bold;
+        }
+        .title { font-size: 1.6rem; }
+        .back-home {
+            color: #000;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        .page { max-width: 1000px; margin: 0 auto; padding: 1rem; }
+        h1 { margin: 0.5rem 0 0.2rem; }
+        h2 { background: #333; padding: 0.4rem 0.6rem; color: #ffcc00; }
+        .muted { color: #aaa; }
+        .status-bar {
+            margin: 12px 0;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #1a1a1a;
+        }
+        .status-bar.warn { color: #ffcc00; border-color: #ffcc00; }
+        .status-bar.error { color: #ff6b6b; border-color: #ff6b6b; }
+        .hidden { display: none !important; }
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        @media(min-width: 900px) {
+            .layout { grid-template-columns: 1fr 1fr; }
+        }
+        .card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        .card input, .card textarea {
+            width: 100%;
+            background: #0d0d0d;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 0.6rem;
+            margin-top: 0.3rem;
+        }
+        .card textarea { min-height: 120px; resize: vertical; }
+        .btn {
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            padding: 0.6rem 0.9rem;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 0.4rem;
+        }
+        .btn.secondary { background: #222; color: #ffcc00; border: 1px solid #444; }
+        .btn.danger { background: #222; color: #ff6b6b; border: 1px solid #ff6b6b; }
+        .topic-card {
+            padding: 0.8rem;
+            border: 1px solid #222;
+            background: #141414;
+            margin-bottom: 0.6rem;
+            cursor: pointer;
+        }
+        .topic-card:hover { border-color: #ffcc00; }
+        .reply {
+            border-left: 3px solid #333;
+            margin: 0.6rem 0;
+            padding-left: 0.6rem;
+        }
+        .input-row { margin-bottom: 0.6rem; }
+        .pill { display: inline-block; padding: 0.1rem 0.4rem; background: #222; color: #ffcc00; border-radius: 4px; font-size: 0.85rem; }
+        .empty-card { color: #aaa; border: 1px dashed #333; padding: 0.6rem; }
     </style>
 </head>
 <body>
+    <header>
+        <a class="back-home" href="index.html">← Back</a>
+        <div class="title">Event Horizon News Forum</div>
+        <span id="user-pill" class="pill hidden"></span>
+    </header>
 
-<h1>
-    The Forum
-    
-</h1>
+    <div class="page">
+        <p class="muted">A simple forum with the same colors as the homepage.</p>
+        <div id="status" class="status-bar hidden"></div>
+        <div id="login-warning" class="status-bar warn hidden">
+            You need to log in on the homepage to use the forum. <a href="index.html" style="color: #ffcc00;">Go to login</a>
+        </div>
 
-<h2>Create a topic</h2>
-<form id="postForm">
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="text" id="topic" placeholder="Topic" required>
-    <textarea id="message" placeholder="Message" required></textarea>
-    <button type="submit">Publish</button>
-</form>
+        <main class="layout">
+            <section class="card">
+                <h2>Create a thread</h2>
+                <form id="postForm">
+                    <div class="input-row">
+                        <label>Title</label>
+                        <input type="text" id="topic" placeholder="What do you want to talk about?" required maxlength="120">
+                    </div>
+                    <div class="input-row">
+                        <label>Message</label>
+                        <textarea id="message" placeholder="Share your question, discovery or thought." required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Publish</button>
+                </form>
+            </section>
 
-<hr>
-<h2>All topics</h2>
-<div id="topics"></div>
+            <section class="card">
+                <h2>Threads <span class="pill"><span id="topic-count">0</span> threads</span></h2>
+                <div id="topics"></div>
+                <div id="topic-detail" class="hidden"></div>
+            </section>
+        </main>
+    </div>
 
 <script>
 const API = "/api";
+const topicsList = document.getElementById("topics");
+const topicDetail = document.getElementById("topic-detail");
+const topicCount = document.getElementById("topic-count");
+const userPill = document.getElementById("user-pill");
+const urlUser = new URLSearchParams(location.search).get("user") || "";
+const loginWarning = document.getElementById("login-warning");
 
-// =====================================================
-// HÄMTA ALLA TOPICS
-// =====================================================
-function loadTopics() {
-    fetch(`${API}/topics`)
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById("topics");
-            container.innerHTML = "";
-
-            data.forEach(t => {
-                const div = document.createElement("div");
-                div.className = "topic";
-                div.innerHTML = `
-                    <b>${t.username}</b>: ${t.topics}
-                    <button style="float:right" onclick="event.stopPropagation(); deleteMessage(${t.id}, true)">Delete</button>
-                `;
-                div.onclick = () => openTopic(t.id);
-                container.appendChild(div);
-            });
-        })
-        .catch(err => console.error("Error while fetching:", err));
+function showTopicList() {
+    topicsList.classList.remove("hidden");
+    topicDetail.classList.add("hidden");
 }
 
-// =====================================================
-// ÖPPNA TOPIC + KOMMENTARER
-// =====================================================
-function openTopic(id) {
-    fetch(`${API}/topic/${id}`)
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById("topics");
-            const { topic, messages } = data;
-
-            container.innerHTML = `<h2>${topic.topics}</h2>
-                <p><b>${topic.username}</b>: ${topic.messages}</p>
-                <button onclick="deleteMessage(${topic.id}, true)">Delete topic</button>
-                <hr>`;
-
-            messages.forEach(m => {
-                const div = document.createElement("div");
-                div.className = "message";
-                div.innerHTML = `
-                    ${m.username}: ${m.messages}
-                    <button style="margin-left:10px" onclick="deleteMessage(${m.id}, false, ${topic.id})">Delete</button>
-                `;
-                container.appendChild(div);
-            });
-
-            container.innerHTML += `
-                <h3>Svara</h3>
-                <input id="replyUser" placeholder="Username">
-                <textarea id="replyMsg" placeholder="Message"></textarea>
-                <button onclick="reply(${id})">Publish</button>
-                <br><br>
-                <button onclick="loadTopics()">⬅ Return</button>
-            `;
-        })
-        .catch(err => console.error("Couldn't open the topic:", err));
+async function loadTopics() {
+    showTopicList();
+    const res = await fetch(API + "/topics");
+    const data = await res.json();
+    renderTopics(Array.isArray(data) ? data : []);
 }
 
-// =====================================================
-// SKICKA SVAR
-// =====================================================
-function reply(parentId) {
-    const username = document.getElementById("replyUser").value;
-    const message = document.getElementById("replyMsg").value;
+function renderTopics(data) {
+    topicsList.innerHTML = "";
+    if (!data.length) {
+        topicsList.innerHTML = '<div class="empty-card">No threads yet.</div>';
+        topicCount.textContent = "0";
+        return;
+    }
+    topicCount.textContent = data.length;
 
-    fetch(`${API}/reply`, {
+    data.forEach(t => {
+        const item = document.createElement("article");
+        item.className = "topic-card";
+        item.innerHTML = `
+            <div class="topic-meta">
+                <span class="muted">by ${t.username || "Anonymous"}</span>
+                <button class="delete-inline" aria-label="Delete" title="Delete">Delete</button>
+            </div>
+            <h3 class="topic-title">${t.topics || "No title"}</h3>
+            <p class="topic-snippet">${(t.messages || "").slice(0, 140) || "No description."}</p>
+        `;
+        item.onclick = () => openTopic(t.id);
+        item.querySelector(".delete-inline").addEventListener("click", (e) => {
+            e.stopPropagation();
+            deleteMessage(t.id, true);
+        });
+        topicsList.appendChild(item);
+    });
+}
+
+async function openTopic(id) {
+    const res = await fetch(API + "/topic/" + id);
+    const data = await res.json();
+    renderTopicDetail(data);
+}
+
+function renderTopicDetail(data) {
+    const { topic, messages } = data;
+    topicsList.classList.add("hidden");
+    topicDetail.classList.remove("hidden");
+
+    const replies = (messages || []).map(m => `
+        <div class="reply">
+            <strong>${m.username || "Anonymous"}</strong><br>
+            <span class="muted">${m.messages || ""}</span><br>
+            <button class="btn secondary" onclick="deleteMessage(${m.id}, false, ${topic.id})">Delete</button>
+        </div>
+    `).join("") || '<div class="empty-card">No replies yet.</div>';
+
+    const replyBlock = urlUser ? `
+        <form class="reply-form" data-topic="${topic.id}">
+            <div class="input-row">
+                <label>Your reply</label>
+                <textarea name="replyMsg" placeholder="Write a reply..." required></textarea>
+            </div>
+            <button type="submit" class="btn">Publish reply</button>
+        </form>
+    ` : `
+        <div class="status-bar warn">Log in on the homepage to reply. <a href="index.html" style="color:#ffcc00;">Go to login</a></div>
+    `;
+
+    topicDetail.innerHTML = `
+        <button class="btn secondary" onclick="showTopicList()">← All threads</button>
+        <h3>${topic.topics || "No title"}</h3>
+        <p class="muted">Started by ${topic.username || "Anonymous"}</p>
+        <p>${topic.messages || ""}</p>
+        <div class="reply-list">${replies}</div>
+        ${replyBlock}
+    `;
+
+    topicDetail.querySelector(".reply-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        reply(topic.id);
+    });
+
+}
+
+async function reply(parentId) {
+    const form = document.querySelector(`.reply-form[data-topic="${parentId}"]`);
+    if (!form) return;
+    const username = urlUser;
+    const message = form.querySelector('textarea[name="replyMsg"]').value.trim();
+    if (!username || !message) return;
+    await fetch(API + "/reply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            username,
-            message,
-            topicId: parentId
-        })
-    }).then(() => openTopic(parentId));
+        body: JSON.stringify({ username, message, topicId: parentId })
+    });
+    form.reset();
+    openTopic(parentId);
 }
 
-// =====================================================
-// SKAPA NYTT TOPIC
-// =====================================================
-document.getElementById("postForm").addEventListener("submit", e => {
+document.getElementById("postForm").addEventListener("submit", async e => {
     e.preventDefault();
-
-    const username = document.getElementById("username").value;
-    const topic = document.getElementById("topic").value;
-    const message = document.getElementById("message").value;
-
-    fetch(`${API}/create`, {
+    const username = urlUser;
+    const topic = document.getElementById("topic").value.trim();
+    const message = document.getElementById("message").value.trim();
+    if (!username || !topic || !message) return;
+    await fetch(API + "/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            username,
-            topic,
-            message
-        })
-    }).then(() => loadTopics());
+        body: JSON.stringify({ username, topic, message })
+    });
+    e.target.reset();
+    loadTopics();
 });
 
-// =====================================================
-// TA BORT MEDDELANDE/TOPIC
-// =====================================================
-function deleteMessage(id, isTopic, parentId) {
-    if (!confirm("Ta bort?")) return;
-    fetch(`${API}/message/${id}`, { method: "DELETE" })
-        .then(() => {
-            if (isTopic) {
-                loadTopics();
-            } else {
-                openTopic(parentId);
-            }
-        })
-        .catch(err => console.error("Kunde inte ta bort:", err));
+async function deleteMessage(id, isTopic, parentId) {
+    if (!urlUser) return;
+    if (!confirm("Delete?")) return;
+    await fetch(API + "/message/" + id, { method: "DELETE" });
+    if (isTopic) {
+        loadTopics();
+    } else {
+        openTopic(parentId);
+    }
 }
 
-// Starta
+if (!urlUser) {
+    loginWarning.classList.remove("hidden");
+    document.getElementById("postForm").classList.add("hidden");
+} else {
+    loginWarning.classList.add("hidden");
+    if (userPill) {
+        userPill.textContent = `Signed in as ${urlUser}`;
+        userPill.classList.remove("hidden");
+    }
+}
 loadTopics();
 </script>
-
 </body>
 </html>

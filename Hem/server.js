@@ -35,6 +35,12 @@ function requireCredentials(req) {
     return { username, password };
 }
 
+function cleanOrNull(value) {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    return trimmed.length ? trimmed : null;
+}
+
 // Login endpoint
 app.post('/api/login', (req, res) => {
     const { username, password } = requireCredentials(req);
@@ -62,24 +68,23 @@ app.post('/api/register', (req, res) => {
     const { username, password } = requireCredentials(req);
 
     if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Input both Usernname and Password' });
+        return res.json({ success: false, message: 'Input both Usernname and Password' });
     }
 
     try {
         const data = readUserFile();
-        const exists = data.users.some(u => u.username === username);
+        const exists = data.users.some(u => u.username.toLowerCase() === username.toLowerCase());
 
         if (exists) {
-            return res.status(409).json({ success: false, message: 'Username is already in use' });
-        }
-
-        const nextId = data.users.reduce((max, u) => Math.max(max, u.id || 0), 0) + 1;
+            return res.json({ success: false, message: 'Username is already in use' });
+        } 
+            const nextId = data.users.reduce((max, u) => Math.max(max, u.id || 0), 0) + 1;
         data.users.push({ id: nextId, username, password, followedWords: [] });
         writeUserFile(data);
         res.json({ success: true });
-    } catch (err) {
-        console.error('Register error:', err);
-        res.status(500).json({ success: false, message: 'Internal server error while registration' });
+        }
+     finally {
+        // No-op
     }
 });
 
@@ -120,6 +125,14 @@ const db = mysql.createConnection({
     charset: "utf8mb4"
 });
 
+db.connect(err => {
+    if (err) {
+        console.error("Could not connect to MySQL:", err);
+    } else {
+        console.log("MySQL connected for forum.");
+    }
+});
+
 // --------- API ----------
 app.post("/api/create", (req, res) => {
     const { username, topic, message } = req.body;
@@ -140,7 +153,11 @@ app.post("/api/create", (req, res) => {
 
 // Hämta alla topics
 app.get("/api/topics", (req, res) => {
-    db.query("SELECT * FROM forum WHERE parent_id = 0", (err, rows) => {
+    db.query("SELECT * FROM forum WHERE parent_id = 0 ORDER BY id DESC", (err, rows) => {
+        if (err) {
+            console.error("Topics read error:", err);
+            return res.status(500).json({ error: "Could not read topics" });
+        }
         res.json(rows);
     });
 });
@@ -150,14 +167,20 @@ app.get("/api/topic/:id", (req, res) => {
     const id = req.params.id;
 
     db.query("SELECT * FROM forum WHERE id = ?", [id], (err, topicRows) => {
-        if (err) return res.status(500).json({ error: err });
-        if (!topicRows.length) return res.status(404).json({ error: "Topic finns inte." });
+        if (err) {
+            console.error("Topic read error:", err);
+            return res.status(500).json({ error: "Could not read topic" });
+        }
+        if (!topicRows.length) return res.status(404).json({ error: "Topic not found." });
 
         db.query(
             "SELECT * FROM forum WHERE parent_id = ?",
             [id],
             (err2, replyRows) => {
-                if (err2) return res.status(500).json({ error: err2 });
+                if (err2) {
+                    console.error("Replies read error:", err2);
+                    return res.status(500).json({ error: "Could not read replies" });
+                }
                 res.json({ topic: topicRows[0], messages: replyRows });
             }
         );

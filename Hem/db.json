@@ -3,7 +3,8 @@
     {
       "id": 1,
       "username": "admin",
-      "password": "admin"
+      "password": "admin",
+      "followedWords": []
     },
     {
       "id": 2,
@@ -14,6 +15,24 @@
       "id": 3,
       "username": "hello",
       "password": "hello",
+      "followedWords": []
+    },
+    {
+      "id": 4,
+      "username": "viktor",
+      "password": "viktor",
+      "followedWords": []
+    },
+    {
+      "id": 5,
+      "username": "ADmIN2",
+      "password": "viktor",
+      "followedWords": []
+    },
+    {
+      "id": 6,
+      "username": "111",
+      "password": "2222",
       "followedWords": []
     }
   ]
