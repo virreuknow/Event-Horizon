@@ -9,6 +9,7 @@ Byggd med https://spaceflightnewsapi.net/
 
 --------------------------------------------------------------
 THE SQL NAME MUST BE oppetHus-forum
+
 --------------------------------------------------------------
 
 Event Horizon is now available!
